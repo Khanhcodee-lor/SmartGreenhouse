@@ -212,7 +212,7 @@ class _PlantProfilesPageState extends State<PlantProfilesPage> {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  'Ngưỡng tưới: < ${plant.moistureThreshold}%',
+                  'Ngưỡng tưới: < ${plant.moistureThreshold}% | Tắt bơm: > ${plant.moistureStopThreshold}%',
                   style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xFF5F6D7A),
@@ -350,6 +350,7 @@ class _PlantFormBottomSheetState extends State<_PlantFormBottomSheet> {
   late TextEditingController _nameController;
   late TextEditingController _ageController;
   late TextEditingController _thresholdController;
+  late TextEditingController _stopThresholdController;
   late TextEditingController _tempThresholdController;
   late TextEditingController _humidityThresholdController;
   late TextEditingController _customDeviceIdController;
@@ -364,6 +365,7 @@ class _PlantFormBottomSheetState extends State<_PlantFormBottomSheet> {
     _nameController = TextEditingController(text: p?.name ?? '');
     _ageController = TextEditingController(text: p != null ? p.age.toString() : '');
     _thresholdController = TextEditingController(text: p != null ? p.moistureThreshold.toString() : '60');
+    _stopThresholdController = TextEditingController(text: p != null ? p.moistureStopThreshold.toString() : '65');
     _tempThresholdController = TextEditingController(text: p != null ? p.tempThreshold.toString() : '40');
     _humidityThresholdController = TextEditingController(text: p != null ? p.humidityThreshold.toString() : '30');
     
@@ -384,6 +386,7 @@ class _PlantFormBottomSheetState extends State<_PlantFormBottomSheet> {
     _nameController.dispose();
     _ageController.dispose();
     _thresholdController.dispose();
+    _stopThresholdController.dispose();
     _tempThresholdController.dispose();
     _humidityThresholdController.dispose();
     _customDeviceIdController.dispose();
@@ -407,6 +410,7 @@ class _PlantFormBottomSheetState extends State<_PlantFormBottomSheet> {
       age: int.parse(_ageController.text.trim()),
       deviceId: deviceId,
       moistureThreshold: int.parse(_thresholdController.text.trim()),
+      moistureStopThreshold: int.parse(_stopThresholdController.text.trim()),
       tempThreshold: int.parse(_tempThresholdController.text.trim()),
       humidityThreshold: int.parse(_humidityThresholdController.text.trim()),
     );
@@ -493,6 +497,32 @@ class _PlantFormBottomSheetState extends State<_PlantFormBottomSheet> {
                         if (val == null || val.trim().isEmpty) return 'Bắt buộc';
                         final num = int.tryParse(val.trim());
                         if (num == null || num <= 0 || num >= 100) return '1-99';
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _stopThresholdController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: InputDecoration(
+                        labelText: 'Tắt bơm khi ẩm >',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        prefixIcon: const Icon(Icons.water_drop_outlined, color: Colors.blueAccent),
+                        suffixText: '%',
+                      ),
+                      validator: (val) {
+                        if (val == null || val.trim().isEmpty) return 'Bắt buộc';
+                        final stopNum = int.tryParse(val.trim());
+                        final startNum = int.tryParse(_thresholdController.text.trim());
+                        if (stopNum == null || stopNum <= 0 || stopNum >= 100) return '1-99';
+                        if (startNum != null && stopNum <= startNum) return 'Phải > mức tưới';
                         return null;
                       },
                     ),

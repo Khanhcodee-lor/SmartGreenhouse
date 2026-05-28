@@ -19,6 +19,10 @@ class _PlantSetupPageState extends State<PlantSetupPage>
   final _plantNameController = TextEditingController();
   final _plantAgeController = TextEditingController();
   final _deviceIdController = TextEditingController();
+  final _thresholdController = TextEditingController(text: '60');
+  final _stopThresholdController = TextEditingController(text: '65');
+  final _tempThresholdController = TextEditingController(text: '40');
+  final _humidityThresholdController = TextEditingController(text: '30');
 
   late AnimationController _animController;
   late Animation<double> _fadeIn;
@@ -51,6 +55,10 @@ class _PlantSetupPageState extends State<PlantSetupPage>
     _plantNameController.dispose();
     _plantAgeController.dispose();
     _deviceIdController.dispose();
+    _thresholdController.dispose();
+    _stopThresholdController.dispose();
+    _tempThresholdController.dispose();
+    _humidityThresholdController.dispose();
     super.dispose();
   }
 
@@ -80,6 +88,10 @@ class _PlantSetupPageState extends State<PlantSetupPage>
 
     final plantName = _plantNameController.text.trim();
     final plantAge = int.tryParse(_plantAgeController.text.trim()) ?? 0;
+    final moistureThreshold = int.tryParse(_thresholdController.text.trim()) ?? 60;
+    final moistureStopThreshold = int.tryParse(_stopThresholdController.text.trim()) ?? 65;
+    final tempThreshold = int.tryParse(_tempThresholdController.text.trim()) ?? 40;
+    final humidityThreshold = int.tryParse(_humidityThresholdController.text.trim()) ?? 30;
 
     final plantProvider = context.read<PlantProvider>();
     final newProfile = PlantProfile(
@@ -87,7 +99,10 @@ class _PlantSetupPageState extends State<PlantSetupPage>
       name: plantName,
       age: plantAge,
       deviceId: deviceId,
-      moistureThreshold: 60, // Default threshold
+      moistureThreshold: moistureThreshold,
+      moistureStopThreshold: moistureStopThreshold,
+      tempThreshold: tempThreshold,
+      humidityThreshold: humidityThreshold,
     );
 
     plantProvider.addOrUpdatePlant(newProfile).then((_) {
@@ -140,6 +155,30 @@ class _PlantSetupPageState extends State<PlantSetupPage>
                         _buildPlantNameField(),
                         const SizedBox(height: 14),
                         _buildPlantAgeField(),
+
+                        const SizedBox(height: 32),
+                        
+                        // ── Thresholds Section ──
+                        _buildSectionTitle(
+                          'Cấu hình ngưỡng tự động',
+                          Icons.tune_rounded,
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Expanded(child: _buildNumberField(_thresholdController, 'Tưới khi ẩm <', Icons.water_drop_rounded, Colors.blue)),
+                            const SizedBox(width: 16),
+                            Expanded(child: _buildNumberField(_stopThresholdController, 'Tắt bơm khi ẩm >', Icons.water_drop_outlined, Colors.blueAccent)),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Expanded(child: _buildNumberField(_tempThresholdController, 'Báo nóng >', Icons.thermostat_rounded, Colors.orange)),
+                            const SizedBox(width: 16),
+                            Expanded(child: _buildNumberField(_humidityThresholdController, 'Báo khô <', Icons.air_rounded, Colors.lightBlue)),
+                          ],
+                        ),
 
                         const SizedBox(height: 32),
 
@@ -463,6 +502,75 @@ class _PlantSetupPageState extends State<PlantSetupPage>
           final age = int.tryParse(value.trim());
           if (age == null || age <= 0) {
             return 'Tuổi cây phải là số dương';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  // ─── Number Field Helper ────────────────────────────────
+
+  Widget _buildNumberField(TextEditingController controller, String label, IconData icon, Color iconColor) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF43A047).withAlpha(14),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: 'Ví dụ: 60',
+          hintStyle: TextStyle(
+            color: const Color(0xFF8E9EAB).withAlpha(180),
+            fontSize: 14,
+          ),
+          labelStyle: const TextStyle(color: Color(0xFF5F6D7A), fontSize: 13),
+          prefixIcon: Icon(icon, color: iconColor, size: 20),
+          suffixText: '%',
+          suffixStyle: const TextStyle(
+            color: Color(0xFF5F6D7A),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFF43A047), width: 1.5),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: Colors.red.shade300, width: 1),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+        ),
+        validator: (value) {
+          if (value == null || value.trim().isEmpty) return 'Bắt buộc';
+          final num = int.tryParse(value.trim());
+          if (num == null || num <= 0 || num >= 100) return '1-99';
+          
+          if (label == 'Tắt bơm khi ẩm >') {
+            final startNum = int.tryParse(_thresholdController.text.trim());
+            if (startNum != null && num <= startNum) return '> Mức tưới';
           }
           return null;
         },

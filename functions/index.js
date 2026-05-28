@@ -116,6 +116,7 @@ exports.onSensorsChanged = onValueUpdated(
     const control = controlSnap.val() || {};
     
     const soilThreshold = control.soilThreshold || 60;
+    const soilStopThreshold = control.soilStopThreshold || (soilThreshold + 5);
     const tempThreshold = control.tempThreshold || 40;
     const humidityThreshold = control.humidityThreshold || 30;
 
@@ -125,7 +126,7 @@ exports.onSensorsChanged = onValueUpdated(
         "Cảnh báo đất khô 🏜️",
         `Độ ẩm đất hiện tại quá thấp (${after.soilMoisture}%). Cây đang thiếu nước nghiêm trọng!`
       );
-    } else if (before.soilMoisture < soilThreshold && after.soilMoisture >= soilThreshold) {
+    } else if (before.soilMoisture < soilStopThreshold && after.soilMoisture >= soilStopThreshold) {
       await sendNotification(
         "Đất đã đủ ẩm 🌱",
         `Độ ẩm đất đã đạt mức ổn định (${after.soilMoisture}%).`
