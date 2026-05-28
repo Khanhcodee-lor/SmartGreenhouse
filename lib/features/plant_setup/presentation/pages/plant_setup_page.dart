@@ -20,7 +20,6 @@ class _PlantSetupPageState extends State<PlantSetupPage>
   final _plantAgeController = TextEditingController();
   final _deviceIdController = TextEditingController();
   final _thresholdController = TextEditingController(text: '60');
-  final _stopThresholdController = TextEditingController(text: '65');
   final _tempThresholdController = TextEditingController(text: '40');
   final _humidityThresholdController = TextEditingController(text: '30');
 
@@ -56,7 +55,6 @@ class _PlantSetupPageState extends State<PlantSetupPage>
     _plantAgeController.dispose();
     _deviceIdController.dispose();
     _thresholdController.dispose();
-    _stopThresholdController.dispose();
     _tempThresholdController.dispose();
     _humidityThresholdController.dispose();
     super.dispose();
@@ -89,7 +87,6 @@ class _PlantSetupPageState extends State<PlantSetupPage>
     final plantName = _plantNameController.text.trim();
     final plantAge = int.tryParse(_plantAgeController.text.trim()) ?? 0;
     final moistureThreshold = int.tryParse(_thresholdController.text.trim()) ?? 60;
-    final moistureStopThreshold = int.tryParse(_stopThresholdController.text.trim()) ?? 65;
     final tempThreshold = int.tryParse(_tempThresholdController.text.trim()) ?? 40;
     final humidityThreshold = int.tryParse(_humidityThresholdController.text.trim()) ?? 30;
 
@@ -100,7 +97,6 @@ class _PlantSetupPageState extends State<PlantSetupPage>
       age: plantAge,
       deviceId: deviceId,
       moistureThreshold: moistureThreshold,
-      moistureStopThreshold: moistureStopThreshold,
       tempThreshold: tempThreshold,
       humidityThreshold: humidityThreshold,
     );
@@ -168,14 +164,12 @@ class _PlantSetupPageState extends State<PlantSetupPage>
                           children: [
                             Expanded(child: _buildNumberField(_thresholdController, 'Tưới khi ẩm <', Icons.water_drop_rounded, Colors.blue)),
                             const SizedBox(width: 16),
-                            Expanded(child: _buildNumberField(_stopThresholdController, 'Tắt bơm khi ẩm >', Icons.water_drop_outlined, Colors.blueAccent)),
+                            Expanded(child: _buildNumberField(_tempThresholdController, 'Báo nóng >', Icons.thermostat_rounded, Colors.orange)),
                           ],
                         ),
                         const SizedBox(height: 14),
                         Row(
                           children: [
-                            Expanded(child: _buildNumberField(_tempThresholdController, 'Báo nóng >', Icons.thermostat_rounded, Colors.orange)),
-                            const SizedBox(width: 16),
                             Expanded(child: _buildNumberField(_humidityThresholdController, 'Báo khô <', Icons.air_rounded, Colors.lightBlue)),
                           ],
                         ),
@@ -567,11 +561,6 @@ class _PlantSetupPageState extends State<PlantSetupPage>
           if (value == null || value.trim().isEmpty) return 'Bắt buộc';
           final num = int.tryParse(value.trim());
           if (num == null || num <= 0 || num >= 100) return '1-99';
-          
-          if (label == 'Tắt bơm khi ẩm >') {
-            final startNum = int.tryParse(_thresholdController.text.trim());
-            if (startNum != null && num <= startNum) return '> Mức tưới';
-          }
           return null;
         },
       ),

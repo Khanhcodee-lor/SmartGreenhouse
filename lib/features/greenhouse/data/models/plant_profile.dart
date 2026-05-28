@@ -6,7 +6,6 @@ class PlantProfile {
   final int age;
   final String deviceId;
   final int moistureThreshold;
-  final int moistureStopThreshold;
   final int tempThreshold;
   final int humidityThreshold;
 
@@ -16,7 +15,6 @@ class PlantProfile {
     required this.age,
     required this.deviceId,
     required this.moistureThreshold,
-    this.moistureStopThreshold = 65,
     this.tempThreshold = 40,
     this.humidityThreshold = 30,
   });
@@ -28,7 +26,6 @@ class PlantProfile {
       'age': age,
       'deviceId': deviceId,
       'moistureThreshold': moistureThreshold,
-      'moistureStopThreshold': moistureStopThreshold,
       'tempThreshold': tempThreshold,
       'humidityThreshold': humidityThreshold,
     };
@@ -41,7 +38,6 @@ class PlantProfile {
       age: map['age']?.toInt() ?? 0,
       deviceId: map['deviceId'] ?? 'smart_greenhouse',
       moistureThreshold: map['moistureThreshold']?.toInt() ?? 60,
-      moistureStopThreshold: map['moistureStopThreshold']?.toInt() ?? 65,
       tempThreshold: map['tempThreshold']?.toInt() ?? 40,
       humidityThreshold: map['humidityThreshold']?.toInt() ?? 30,
     );
@@ -57,7 +53,6 @@ class PlantProfile {
     int? age,
     String? deviceId,
     int? moistureThreshold,
-    int? moistureStopThreshold,
     int? tempThreshold,
     int? humidityThreshold,
   }) {
@@ -67,7 +62,6 @@ class PlantProfile {
       age: age ?? this.age,
       deviceId: deviceId ?? this.deviceId,
       moistureThreshold: moistureThreshold ?? this.moistureThreshold,
-      moistureStopThreshold: moistureStopThreshold ?? this.moistureStopThreshold,
       tempThreshold: tempThreshold ?? this.tempThreshold,
       humidityThreshold: humidityThreshold ?? this.humidityThreshold,
     );

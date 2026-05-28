@@ -76,7 +76,6 @@ class PlantProvider extends ChangeNotifier {
     try {
       await _updateControl({
         'soilThreshold': plant.moistureThreshold,
-        'soilStopThreshold': plant.moistureStopThreshold,
         'tempThreshold': plant.tempThreshold,
         'humidityThreshold': plant.humidityThreshold,
       });
