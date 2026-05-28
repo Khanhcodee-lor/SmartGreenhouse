@@ -45,7 +45,7 @@ class PlantProvider extends ChangeNotifier {
     
     // Nếu cây vừa sửa đang là active, cập nhật lại Firebase
     if (_activePlantId == plant.id) {
-      await _syncThresholdToFirebase(plant.moistureThreshold);
+      await _syncThresholdToFirebase(plant);
     }
     
     notifyListeners();
@@ -68,13 +68,17 @@ class PlantProvider extends ChangeNotifier {
     await _storageService.setActivePlantId(id);
     _activePlantId = id;
     
-    await _syncThresholdToFirebase(plant.moistureThreshold);
+    await _syncThresholdToFirebase(plant);
     notifyListeners();
   }
 
-  Future<void> _syncThresholdToFirebase(int threshold) async {
+  Future<void> _syncThresholdToFirebase(PlantProfile plant) async {
     try {
-      await _updateControl({'soilThreshold': threshold});
+      await _updateControl({
+        'soilThreshold': plant.moistureThreshold,
+        'tempThreshold': plant.tempThreshold,
+        'humidityThreshold': plant.humidityThreshold,
+      });
     } catch (e) {
       debugPrint('Failed to sync threshold: $e');
     }

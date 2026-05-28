@@ -223,6 +223,42 @@ class _PlantProfilesPageState extends State<PlantProfilesPage> {
               ),
             ],
           ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.thermostat_outlined, size: 16, color: Colors.orange),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Ngưỡng báo nóng: > ${plant.tempThreshold}°C',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF5F6D7A),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.air_outlined, size: 16, color: Colors.lightBlueAccent),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Ngưỡng báo khô: < ${plant.humidityThreshold}%',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF5F6D7A),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -314,6 +350,8 @@ class _PlantFormBottomSheetState extends State<_PlantFormBottomSheet> {
   late TextEditingController _nameController;
   late TextEditingController _ageController;
   late TextEditingController _thresholdController;
+  late TextEditingController _tempThresholdController;
+  late TextEditingController _humidityThresholdController;
   late TextEditingController _customDeviceIdController;
 
   bool _isCustomDevice = false;
@@ -326,6 +364,8 @@ class _PlantFormBottomSheetState extends State<_PlantFormBottomSheet> {
     _nameController = TextEditingController(text: p?.name ?? '');
     _ageController = TextEditingController(text: p != null ? p.age.toString() : '');
     _thresholdController = TextEditingController(text: p != null ? p.moistureThreshold.toString() : '60');
+    _tempThresholdController = TextEditingController(text: p != null ? p.tempThreshold.toString() : '40');
+    _humidityThresholdController = TextEditingController(text: p != null ? p.humidityThreshold.toString() : '30');
     
     String initialDevice = p?.deviceId ?? 'smart_greenhouse';
     if (initialDevice != 'smart_greenhouse') {
@@ -344,6 +384,8 @@ class _PlantFormBottomSheetState extends State<_PlantFormBottomSheet> {
     _nameController.dispose();
     _ageController.dispose();
     _thresholdController.dispose();
+    _tempThresholdController.dispose();
+    _humidityThresholdController.dispose();
     _customDeviceIdController.dispose();
     super.dispose();
   }
@@ -365,6 +407,8 @@ class _PlantFormBottomSheetState extends State<_PlantFormBottomSheet> {
       age: int.parse(_ageController.text.trim()),
       deviceId: deviceId,
       moistureThreshold: int.parse(_thresholdController.text.trim()),
+      tempThreshold: int.parse(_tempThresholdController.text.trim()),
+      humidityThreshold: int.parse(_humidityThresholdController.text.trim()),
     );
 
     context.read<PlantProvider>().addOrUpdatePlant(newPlant);
@@ -440,7 +484,7 @@ class _PlantFormBottomSheetState extends State<_PlantFormBottomSheet> {
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
-                        labelText: 'Ngưỡng (%)',
+                        labelText: 'Tưới khi ẩm <',
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         prefixIcon: const Icon(Icons.water_drop_rounded),
                         suffixText: '%',
@@ -449,6 +493,46 @@ class _PlantFormBottomSheetState extends State<_PlantFormBottomSheet> {
                         if (val == null || val.trim().isEmpty) return 'Bắt buộc';
                         final num = int.tryParse(val.trim());
                         if (num == null || num <= 0 || num >= 100) return '1-99';
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _tempThresholdController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: InputDecoration(
+                        labelText: 'Báo nóng >',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        prefixIcon: const Icon(Icons.thermostat_rounded, color: Colors.orange),
+                        suffixText: '°C',
+                      ),
+                      validator: (val) {
+                        if (val == null || val.trim().isEmpty) return 'Bắt buộc';
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _humidityThresholdController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: InputDecoration(
+                        labelText: 'Báo khô <',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        prefixIcon: const Icon(Icons.air_rounded, color: Colors.lightBlue),
+                        suffixText: '%',
+                      ),
+                      validator: (val) {
+                        if (val == null || val.trim().isEmpty) return 'Bắt buộc';
                         return null;
                       },
                     ),

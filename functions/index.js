@@ -110,13 +110,22 @@ exports.onSensorsChanged = onValueUpdated(
 
     if (!before || !after) return;
 
+    // Lấy các ngưỡng (thresholds) từ Firebase
+    const db = admin.database();
+    const controlSnap = await db.ref("/smart_greenhouse/control").once("value");
+    const control = controlSnap.val() || {};
+    
+    const soilThreshold = control.soilThreshold || 60;
+    const tempThreshold = control.tempThreshold || 40;
+    const humidityThreshold = control.humidityThreshold || 30;
+
     // --- ĐỘ ẨM ĐẤT ---
-    if (before.soilMoisture >= 30 && after.soilMoisture < 30) {
+    if (before.soilMoisture >= soilThreshold && after.soilMoisture < soilThreshold) {
       await sendNotification(
         "Cảnh báo đất khô 🏜️",
         `Độ ẩm đất hiện tại quá thấp (${after.soilMoisture}%). Cây đang thiếu nước nghiêm trọng!`
       );
-    } else if (before.soilMoisture < 30 && after.soilMoisture >= 30) {
+    } else if (before.soilMoisture < soilThreshold && after.soilMoisture >= soilThreshold) {
       await sendNotification(
         "Đất đã đủ ẩm 🌱",
         `Độ ẩm đất đã đạt mức ổn định (${after.soilMoisture}%).`
@@ -124,7 +133,7 @@ exports.onSensorsChanged = onValueUpdated(
     }
 
     // --- NHIỆT ĐỘ ---
-    if (before.temperature <= 40 && after.temperature > 40) {
+    if (before.temperature <= tempThreshold && after.temperature > tempThreshold) {
       await sendNotification(
         "Cảnh báo nhiệt độ cao 🔥",
         `Nhiệt độ nhà kính quá nóng (${after.temperature}°C)!`
@@ -134,7 +143,7 @@ exports.onSensorsChanged = onValueUpdated(
         "Cảnh báo nhiệt độ thấp ❄️",
         `Nhiệt độ nhà kính quá lạnh (${after.temperature}°C)!`
       );
-    } else if ((before.temperature > 40 || before.temperature < 10) && (after.temperature >= 10 && after.temperature <= 40)) {
+    } else if ((before.temperature > tempThreshold || before.temperature < 10) && (after.temperature >= 10 && after.temperature <= tempThreshold)) {
       await sendNotification(
         "Nhiệt độ ổn định 🌡️",
         `Nhiệt độ đã trở lại mức bình thường (${after.temperature}°C).`
@@ -142,7 +151,7 @@ exports.onSensorsChanged = onValueUpdated(
     }
 
     // --- ĐỘ ẨM KHÔNG KHÍ ---
-    if (before.humidity >= 30 && after.humidity < 30) {
+    if (before.humidity >= humidityThreshold && after.humidity < humidityThreshold) {
       await sendNotification(
         "Cảnh báo không khí khô 🌵",
         `Độ ẩm không khí quá khô (${after.humidity}%)!`
@@ -152,7 +161,7 @@ exports.onSensorsChanged = onValueUpdated(
         "Cảnh báo độ ẩm cao 💧",
         `Độ ẩm không khí quá cao (${after.humidity}%)!`
       );
-    } else if ((before.humidity < 30 || before.humidity > 90) && (after.humidity >= 30 && after.humidity <= 90)) {
+    } else if ((before.humidity < humidityThreshold || before.humidity > 90) && (after.humidity >= humidityThreshold && after.humidity <= 90)) {
       await sendNotification(
         "Độ ẩm không khí ổn định ☁️",
         `Độ ẩm không khí đã trở lại mức bình thường (${after.humidity}%).`
