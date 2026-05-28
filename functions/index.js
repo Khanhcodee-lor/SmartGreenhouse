@@ -35,7 +35,7 @@ async function sendNotification(title, body) {
   }
 }
 
-// 1. Cảnh báo mất kết nối
+// 1. Cảnh báo mất kết nối và kết nối lại
 exports.onDeviceOnlineChanged = onValueUpdated(
   { ref: "/smart_greenhouse/device/online" },
   async (event) => {
@@ -46,6 +46,11 @@ exports.onDeviceOnlineChanged = onValueUpdated(
       await sendNotification(
         "Cảnh báo kết nối ⚠️",
         "Hệ thống nhà kính vừa bị mất kết nối! Vui lòng kiểm tra lại nguồn điện và WiFi."
+      );
+    } else if (isOnlineBefore === false && isOnlineAfter === true) {
+      await sendNotification(
+        "Đã kết nối lại ✅",
+        "Hệ thống nhà kính đã trực tuyến và hoạt động bình thường."
       );
     }
   }
@@ -66,7 +71,37 @@ exports.onPumpChanged = onValueUpdated(
   }
 );
 
-// 3. Cảnh báo cảm biến (Nhiệt độ, Độ ẩm, Đất)
+// Thông báo Đèn chiếu sáng
+exports.onLightChanged = onValueUpdated(
+  { ref: "/smart_greenhouse/actuators/light" },
+  async (event) => {
+    const lightBefore = event.data.before.val();
+    const lightAfter = event.data.after.val();
+
+    if (lightBefore === false && lightAfter === true) {
+      await sendNotification("Trạng thái Đèn 💡", "Đèn chiếu sáng đã được BẬT.");
+    } else if (lightBefore === true && lightAfter === false) {
+      await sendNotification("Trạng thái Đèn 💡", "Đèn chiếu sáng đã được TẮT.");
+    }
+  }
+);
+
+// Thông báo Quạt thông gió
+exports.onFanChanged = onValueUpdated(
+  { ref: "/smart_greenhouse/actuators/fan" },
+  async (event) => {
+    const fanBefore = event.data.before.val();
+    const fanAfter = event.data.after.val();
+
+    if (fanBefore === false && fanAfter === true) {
+      await sendNotification("Trạng thái Quạt 🌬️", "Quạt thông gió đã được BẬT.");
+    } else if (fanBefore === true && fanAfter === false) {
+      await sendNotification("Trạng thái Quạt 🌬️", "Quạt thông gió đã được TẮT.");
+    }
+  }
+);
+
+// 3. Cảnh báo cảm biến (Nhiệt độ, Độ ẩm, Đất, Ánh sáng)
 exports.onSensorsChanged = onValueUpdated(
   { ref: "/smart_greenhouse/sensors" },
   async (event) => {
@@ -76,11 +111,15 @@ exports.onSensorsChanged = onValueUpdated(
     if (!before || !after) return;
 
     // --- ĐỘ ẨM ĐẤT ---
-    // Cảnh báo nếu trước đó >= 30 và bây giờ < 30 (chỉ báo lúc vừa tụt xuống để tránh spam)
     if (before.soilMoisture >= 30 && after.soilMoisture < 30) {
       await sendNotification(
         "Cảnh báo đất khô 🏜️",
         `Độ ẩm đất hiện tại quá thấp (${after.soilMoisture}%). Cây đang thiếu nước nghiêm trọng!`
+      );
+    } else if (before.soilMoisture < 30 && after.soilMoisture >= 30) {
+      await sendNotification(
+        "Đất đã đủ ẩm 🌱",
+        `Độ ẩm đất đã đạt mức ổn định (${after.soilMoisture}%).`
       );
     }
 
@@ -95,18 +134,41 @@ exports.onSensorsChanged = onValueUpdated(
         "Cảnh báo nhiệt độ thấp ❄️",
         `Nhiệt độ nhà kính quá lạnh (${after.temperature}°C)!`
       );
+    } else if ((before.temperature > 40 || before.temperature < 10) && (after.temperature >= 10 && after.temperature <= 40)) {
+      await sendNotification(
+        "Nhiệt độ ổn định 🌡️",
+        `Nhiệt độ đã trở lại mức bình thường (${after.temperature}°C).`
+      );
     }
 
     // --- ĐỘ ẨM KHÔNG KHÍ ---
     if (before.humidity >= 30 && after.humidity < 30) {
       await sendNotification(
-        "Cảnh báo độ ẩm không khí 🌵",
+        "Cảnh báo không khí khô 🌵",
         `Độ ẩm không khí quá khô (${after.humidity}%)!`
       );
     } else if (before.humidity <= 90 && after.humidity > 90) {
       await sendNotification(
-        "Cảnh báo độ ẩm không khí 💧",
+        "Cảnh báo độ ẩm cao 💧",
         `Độ ẩm không khí quá cao (${after.humidity}%)!`
+      );
+    } else if ((before.humidity < 30 || before.humidity > 90) && (after.humidity >= 30 && after.humidity <= 90)) {
+      await sendNotification(
+        "Độ ẩm không khí ổn định ☁️",
+        `Độ ẩm không khí đã trở lại mức bình thường (${after.humidity}%).`
+      );
+    }
+
+    // --- ÁNH SÁNG ---
+    if (before.lightLevel >= 20 && after.lightLevel < 20) {
+      await sendNotification(
+        "Cảnh báo thiếu sáng 🌥️",
+        `Cường độ ánh sáng quá thấp (${after.lightLevel}%).`
+      );
+    } else if (before.lightLevel < 20 && after.lightLevel >= 20) {
+      await sendNotification(
+        "Ánh sáng ổn định ☀️",
+        `Cường độ ánh sáng đã đủ (${after.lightLevel}%).`
       );
     }
   }
