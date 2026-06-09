@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:provider/provider.dart';
 import '../../../greenhouse/data/models/plant_profile.dart';
 import '../../../greenhouse/presentation/providers/plant_provider.dart';
@@ -39,12 +38,10 @@ class _PlantSetupPageState extends State<PlantSetupPage>
       duration: const Duration(milliseconds: 900),
     );
     _fadeIn = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
-    _slideUp = Tween<Offset>(
-      begin: const Offset(0, 0.12),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
-    );
+    _slideUp = Tween<Offset>(begin: const Offset(0, 0.12), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+        );
     _animController.forward();
   }
 
@@ -75,8 +72,9 @@ class _PlantSetupPageState extends State<PlantSetupPage>
           content: const Text('Vui lòng nhập Device ID'),
           backgroundColor: Colors.red.shade400,
           behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -86,9 +84,12 @@ class _PlantSetupPageState extends State<PlantSetupPage>
 
     final plantName = _plantNameController.text.trim();
     final plantAge = int.tryParse(_plantAgeController.text.trim()) ?? 0;
-    final moistureThreshold = int.tryParse(_thresholdController.text.trim()) ?? 60;
-    final tempThreshold = int.tryParse(_tempThresholdController.text.trim()) ?? 40;
-    final humidityThreshold = int.tryParse(_humidityThresholdController.text.trim()) ?? 30;
+    final moistureThreshold =
+        int.tryParse(_thresholdController.text.trim()) ?? 60;
+    final tempThreshold =
+        int.tryParse(_tempThresholdController.text.trim()) ?? 40;
+    final humidityThreshold =
+        int.tryParse(_humidityThresholdController.text.trim()) ?? 30;
 
     final plantProvider = context.read<PlantProvider>();
     final newProfile = PlantProfile(
@@ -101,23 +102,27 @@ class _PlantSetupPageState extends State<PlantSetupPage>
       humidityThreshold: humidityThreshold,
     );
 
-    plantProvider.addOrUpdatePlant(newProfile).then((_) {
-      plantProvider.setActivePlant(newProfile.id).then((_) {
-        if (!mounted) return;
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 500),
-            pageBuilder: (context, animation, secondaryAnimation) => 
-                const GreenhousePageWrapper(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-          ),
-        );
-      });
-    }).whenComplete(() {
-      if (mounted) setState(() => _isNavigating = false);
-    });
+    plantProvider
+        .addOrUpdatePlant(newProfile)
+        .then((_) {
+          plantProvider.setActivePlant(newProfile.id).then((_) {
+            if (!mounted) return;
+            Navigator.of(context).pushReplacement(
+              PageRouteBuilder(
+                transitionDuration: const Duration(milliseconds: 500),
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    const GreenhousePageWrapper(),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+              ),
+            );
+          });
+        })
+        .whenComplete(() {
+          if (mounted) setState(() => _isNavigating = false);
+        });
   }
 
   // ─── Build ──────────────────────────────────────────────
@@ -153,7 +158,7 @@ class _PlantSetupPageState extends State<PlantSetupPage>
                         _buildPlantAgeField(),
 
                         const SizedBox(height: 32),
-                        
+
                         // ── Thresholds Section ──
                         _buildSectionTitle(
                           'Cấu hình ngưỡng tự động',
@@ -162,15 +167,36 @@ class _PlantSetupPageState extends State<PlantSetupPage>
                         const SizedBox(height: 14),
                         Row(
                           children: [
-                            Expanded(child: _buildNumberField(_thresholdController, 'Tưới khi ẩm <', Icons.water_drop_rounded, Colors.blue)),
+                            Expanded(
+                              child: _buildNumberField(
+                                _thresholdController,
+                                'Tưới khi ẩm <',
+                                Icons.water_drop_rounded,
+                                Colors.blue,
+                              ),
+                            ),
                             const SizedBox(width: 16),
-                            Expanded(child: _buildNumberField(_tempThresholdController, 'Báo nóng >', Icons.thermostat_rounded, Colors.orange)),
+                            Expanded(
+                              child: _buildNumberField(
+                                _tempThresholdController,
+                                'Báo nóng >',
+                                Icons.thermostat_rounded,
+                                Colors.orange,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 14),
                         Row(
                           children: [
-                            Expanded(child: _buildNumberField(_humidityThresholdController, 'Báo khô <', Icons.air_rounded, Colors.lightBlue)),
+                            Expanded(
+                              child: _buildNumberField(
+                                _humidityThresholdController,
+                                'Báo khô <',
+                                Icons.air_rounded,
+                                Colors.lightBlue,
+                              ),
+                            ),
                           ],
                         ),
 
@@ -396,10 +422,7 @@ class _PlantSetupPageState extends State<PlantSetupPage>
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(
-              color: Color(0xFF43A047),
-              width: 1.5,
-            ),
+            borderSide: const BorderSide(color: Color(0xFF43A047), width: 1.5),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
@@ -469,10 +492,7 @@ class _PlantSetupPageState extends State<PlantSetupPage>
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(
-              color: Color(0xFF43A047),
-              width: 1.5,
-            ),
+            borderSide: const BorderSide(color: Color(0xFF43A047), width: 1.5),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
@@ -505,7 +525,12 @@ class _PlantSetupPageState extends State<PlantSetupPage>
 
   // ─── Number Field Helper ────────────────────────────────
 
-  Widget _buildNumberField(TextEditingController controller, String label, IconData icon, Color iconColor) {
+  Widget _buildNumberField(
+    TextEditingController controller,
+    String label,
+    IconData icon,
+    Color iconColor,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -555,7 +580,10 @@ class _PlantSetupPageState extends State<PlantSetupPage>
           ),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 15,
+          ),
         ),
         validator: (value) {
           if (value == null || value.trim().isEmpty) return 'Bắt buộc';
@@ -761,8 +789,7 @@ class _PlantSetupPageState extends State<PlantSetupPage>
             ),
           ),
           validator: (value) {
-            if (_useCustomDevice &&
-                (value == null || value.trim().isEmpty)) {
+            if (_useCustomDevice && (value == null || value.trim().isEmpty)) {
               return 'Vui lòng nhập Device ID';
             }
             if (value != null && RegExp(r'[.#$\[\]]').hasMatch(value)) {

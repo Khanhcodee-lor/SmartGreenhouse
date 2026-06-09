@@ -14,8 +14,8 @@ class PlantProvider extends ChangeNotifier {
   PlantProvider({
     required PlantStorageService storageService,
     required UpdateControl updateControl,
-  })  : _storageService = storageService,
-        _updateControl = updateControl {
+  }) : _storageService = storageService,
+       _updateControl = updateControl {
     _init();
   }
 
@@ -39,35 +39,38 @@ class PlantProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addOrUpdatePlant(PlantProfile plant) async {
+  Future<void> addOrUpdatePlant(
+    PlantProfile plant, {
+    bool syncActivePlant = true,
+  }) async {
     await _storageService.savePlant(plant);
     _plants = await _storageService.getPlants();
-    
+
     // Nếu cây vừa sửa đang là active, cập nhật lại Firebase
-    if (_activePlantId == plant.id) {
+    if (syncActivePlant && _activePlantId == plant.id) {
       await _syncThresholdToFirebase(plant);
     }
-    
+
     notifyListeners();
   }
 
   Future<void> deletePlant(String id) async {
     await _storageService.deletePlant(id);
     _plants = await _storageService.getPlants();
-    
+
     if (_activePlantId == id) {
       _activePlantId = null;
     }
-    
+
     notifyListeners();
   }
 
   Future<void> setActivePlant(String id) async {
     final plant = _plants.firstWhere((p) => p.id == id);
-    
+
     await _storageService.setActivePlantId(id);
     _activePlantId = id;
-    
+
     await _syncThresholdToFirebase(plant);
     notifyListeners();
   }

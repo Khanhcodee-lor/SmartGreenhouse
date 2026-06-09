@@ -15,11 +15,7 @@ import '../providers/notification_provider.dart';
 import '../providers/plant_provider.dart';
 
 class GreenhousePage extends StatelessWidget {
-  const GreenhousePage({
-    super.key,
-    this.plantName,
-    this.plantAge,
-  });
+  const GreenhousePage({super.key, this.plantName, this.plantAge});
 
   final String? plantName;
   final int? plantAge;
@@ -143,6 +139,13 @@ class GreenhousePage extends StatelessWidget {
                 ),
 
               // ─── Sensors Section ───
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  child: _buildThresholdSettingsCard(context, provider, gh),
+                ),
+              ),
+
               _buildSectionHeader('Sensors'),
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -437,7 +440,7 @@ class GreenhousePage extends StatelessWidget {
             );
           },
         ),
-        
+
         // Manual mode badge
         if (manualMode)
           Container(
@@ -538,14 +541,166 @@ class GreenhousePage extends StatelessWidget {
     );
   }
 
+  Widget _buildThresholdSettingsCard(
+    BuildContext context,
+    GreenhouseProvider provider,
+    GreenhouseEntity gh,
+  ) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 10, 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(8),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5E9),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: const Icon(
+                  Icons.tune_rounded,
+                  color: Color(0xFF43A047),
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  'ESP Setpoints',
+                  style: TextStyle(
+                    color: Color(0xFF2E3A46),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: 'Edit thresholds',
+                onPressed: () => _showThresholdDialog(context, provider, gh),
+                icon: const Icon(Icons.edit_outlined),
+                color: const Color(0xFF43A047),
+                iconSize: 20,
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                padding: EdgeInsets.zero,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              _buildThresholdChip(
+                icon: Icons.water_drop_outlined,
+                label: 'Soil',
+                value: '${gh.control.soilThreshold}%',
+                color: const Color(0xFF43A047),
+              ),
+              const SizedBox(width: 8),
+              _buildThresholdChip(
+                icon: Icons.thermostat_rounded,
+                label: 'Fan',
+                value: '${gh.control.tempThreshold} C',
+                color: const Color(0xFFEF6C00),
+              ),
+              const SizedBox(width: 8),
+              _buildThresholdChip(
+                icon: Icons.air_rounded,
+                label: 'Air',
+                value: '${gh.control.humidityThreshold}%',
+                color: const Color(0xFF29B6F6),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildThresholdChip({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Expanded(
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 58),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+        decoration: BoxDecoration(
+          color: color.withAlpha(18),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withAlpha(34)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 14, color: color),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFF5F6D7A),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 3),
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFF2E3A46),
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showThresholdDialog(
+    BuildContext context,
+    GreenhouseProvider provider,
+    GreenhouseEntity gh,
+  ) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => _ThresholdSettingsDialog(provider: provider, gh: gh),
+    );
+  }
+
   void _navigateToChartPage(
-      BuildContext context,
-      String title,
-      String unit,
-      List<Color> gradientColors,
-      Map<String, SensorHistoryEntity> historyMap,
-      double Function(SensorHistoryEntity) valueSelector) {
-    
+    BuildContext context,
+    String title,
+    String unit,
+    List<Color> gradientColors,
+    Map<String, SensorHistoryEntity> historyMap,
+    double Function(SensorHistoryEntity) valueSelector,
+  ) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -565,7 +720,7 @@ class GreenhousePage extends StatelessWidget {
   List<Widget> _buildSensorCards(BuildContext context, GreenhouseEntity gh) {
     final sensors = gh.sensors;
     final history = gh.history;
-    
+
     return [
       SensorCard(
         icon: Icons.thermostat_rounded,
@@ -726,5 +881,207 @@ class GreenhousePage extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _ThresholdSettingsDialog extends StatefulWidget {
+  const _ThresholdSettingsDialog({required this.provider, required this.gh});
+
+  final GreenhouseProvider provider;
+  final GreenhouseEntity gh;
+
+  @override
+  State<_ThresholdSettingsDialog> createState() =>
+      _ThresholdSettingsDialogState();
+}
+
+class _ThresholdSettingsDialogState extends State<_ThresholdSettingsDialog> {
+  late final TextEditingController _soilController;
+  late final TextEditingController _tempController;
+  late final TextEditingController _humidityController;
+  bool _isSaving = false;
+  String? _errorText;
+
+  @override
+  void initState() {
+    super.initState();
+    _soilController = TextEditingController(
+      text: widget.gh.control.soilThreshold.toString(),
+    );
+    _tempController = TextEditingController(
+      text: widget.gh.control.tempThreshold.toString(),
+    );
+    _humidityController = TextEditingController(
+      text: widget.gh.control.humidityThreshold.toString(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _soilController.dispose();
+    _tempController.dispose();
+    _humidityController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text(
+        'ESP Setpoints',
+        style: TextStyle(
+          color: Color(0xFF2E3A46),
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _numberField(
+            controller: _soilController,
+            label: 'Soil dry below',
+            suffix: '%',
+            icon: Icons.water_drop_outlined,
+          ),
+          const SizedBox(height: 12),
+          _numberField(
+            controller: _tempController,
+            label: 'Fan hot above',
+            suffix: 'C',
+            icon: Icons.thermostat_rounded,
+          ),
+          const SizedBox(height: 12),
+          _numberField(
+            controller: _humidityController,
+            label: 'Air dry below',
+            suffix: '%',
+            icon: Icons.air_rounded,
+          ),
+          if (_errorText != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              _errorText!,
+              style: TextStyle(
+                color: Colors.red.shade700,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isSaving ? null : () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _isSaving ? null : _saveThresholds,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF43A047),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: _isSaving
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+              : const Text('Save'),
+        ),
+      ],
+    );
+  }
+
+  Widget _numberField({
+    required TextEditingController controller,
+    required String label,
+    required String suffix,
+    required IconData icon,
+  }) {
+    return TextField(
+      controller: controller,
+      enabled: !_isSaving,
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(
+        labelText: label,
+        suffixText: suffix,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  Future<void> _saveThresholds() async {
+    final soilThreshold = int.tryParse(_soilController.text.trim());
+    final tempThreshold = int.tryParse(_tempController.text.trim());
+    final humidityThreshold = int.tryParse(_humidityController.text.trim());
+
+    if (soilThreshold == null ||
+        soilThreshold < 0 ||
+        soilThreshold > 100 ||
+        humidityThreshold == null ||
+        humidityThreshold < 0 ||
+        humidityThreshold > 100 ||
+        tempThreshold == null ||
+        tempThreshold < 0 ||
+        tempThreshold > 80) {
+      setState(() {
+        _errorText = 'Use 0-100 for humidity values and 0-80 for temperature.';
+      });
+      return;
+    }
+
+    final plantProvider = context.read<PlantProvider>();
+    final activePlant = plantProvider.activePlant;
+
+    setState(() {
+      _isSaving = true;
+      _errorText = null;
+    });
+
+    try {
+      await widget.provider.updateThresholds(
+        soilThreshold: soilThreshold,
+        tempThreshold: tempThreshold,
+        humidityThreshold: humidityThreshold,
+      );
+
+      if (activePlant != null) {
+        await plantProvider.addOrUpdatePlant(
+          activePlant.copyWith(
+            moistureThreshold: soilThreshold,
+            tempThreshold: tempThreshold,
+            humidityThreshold: humidityThreshold,
+          ),
+          syncActivePlant: false,
+        );
+      }
+
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      Navigator.pop(context);
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Thresholds sent to ESP.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isSaving = false;
+        _errorText = 'Could not save thresholds. Please try again.';
+      });
+    }
   }
 }

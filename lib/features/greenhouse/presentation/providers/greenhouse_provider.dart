@@ -16,8 +16,8 @@ class GreenhouseProvider extends ChangeNotifier {
   GreenhouseProvider({
     required WatchGreenhouse watchGreenhouse,
     required UpdateControl updateControl,
-  })  : _watchGreenhouse = watchGreenhouse,
-        _updateControl = updateControl;
+  }) : _watchGreenhouse = watchGreenhouse,
+       _updateControl = updateControl;
 
   // --------------- Getters ---------------
 
@@ -93,6 +93,24 @@ class GreenhouseProvider extends ChangeNotifier {
     } catch (e) {
       _error = 'Failed to reset water counter: $e';
       notifyListeners();
+    }
+  }
+
+  Future<void> updateThresholds({
+    required int soilThreshold,
+    required int tempThreshold,
+    required int humidityThreshold,
+  }) async {
+    try {
+      await _updateControl({
+        'soilThreshold': soilThreshold,
+        'tempThreshold': tempThreshold,
+        'humidityThreshold': humidityThreshold,
+      });
+    } catch (e) {
+      _error = 'Failed to update thresholds: $e';
+      notifyListeners();
+      rethrow;
     }
   }
 

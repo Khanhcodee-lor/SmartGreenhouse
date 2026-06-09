@@ -26,6 +26,9 @@ mixin _$ControlModel {
   bool get fan => throw _privateConstructorUsedError;
   bool get light => throw _privateConstructorUsedError;
   bool get resetWater => throw _privateConstructorUsedError;
+  int get soilThreshold => throw _privateConstructorUsedError;
+  int get tempThreshold => throw _privateConstructorUsedError;
+  int get humidityThreshold => throw _privateConstructorUsedError;
 
   /// Serializes this ControlModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -50,6 +53,9 @@ abstract class $ControlModelCopyWith<$Res> {
     bool fan,
     bool light,
     bool resetWater,
+    int soilThreshold,
+    int tempThreshold,
+    int humidityThreshold,
   });
 }
 
@@ -73,6 +79,9 @@ class _$ControlModelCopyWithImpl<$Res, $Val extends ControlModel>
     Object? fan = null,
     Object? light = null,
     Object? resetWater = null,
+    Object? soilThreshold = null,
+    Object? tempThreshold = null,
+    Object? humidityThreshold = null,
   }) {
     return _then(
       _value.copyWith(
@@ -96,6 +105,18 @@ class _$ControlModelCopyWithImpl<$Res, $Val extends ControlModel>
                 ? _value.resetWater
                 : resetWater // ignore: cast_nullable_to_non_nullable
                       as bool,
+            soilThreshold: null == soilThreshold
+                ? _value.soilThreshold
+                : soilThreshold // ignore: cast_nullable_to_non_nullable
+                      as int,
+            tempThreshold: null == tempThreshold
+                ? _value.tempThreshold
+                : tempThreshold // ignore: cast_nullable_to_non_nullable
+                      as int,
+            humidityThreshold: null == humidityThreshold
+                ? _value.humidityThreshold
+                : humidityThreshold // ignore: cast_nullable_to_non_nullable
+                      as int,
           )
           as $Val,
     );
@@ -117,6 +138,9 @@ abstract class _$$ControlModelImplCopyWith<$Res>
     bool fan,
     bool light,
     bool resetWater,
+    int soilThreshold,
+    int tempThreshold,
+    int humidityThreshold,
   });
 }
 
@@ -139,6 +163,9 @@ class __$$ControlModelImplCopyWithImpl<$Res>
     Object? fan = null,
     Object? light = null,
     Object? resetWater = null,
+    Object? soilThreshold = null,
+    Object? tempThreshold = null,
+    Object? humidityThreshold = null,
   }) {
     return _then(
       _$ControlModelImpl(
@@ -162,6 +189,18 @@ class __$$ControlModelImplCopyWithImpl<$Res>
             ? _value.resetWater
             : resetWater // ignore: cast_nullable_to_non_nullable
                   as bool,
+        soilThreshold: null == soilThreshold
+            ? _value.soilThreshold
+            : soilThreshold // ignore: cast_nullable_to_non_nullable
+                  as int,
+        tempThreshold: null == tempThreshold
+            ? _value.tempThreshold
+            : tempThreshold // ignore: cast_nullable_to_non_nullable
+                  as int,
+        humidityThreshold: null == humidityThreshold
+            ? _value.humidityThreshold
+            : humidityThreshold // ignore: cast_nullable_to_non_nullable
+                  as int,
       ),
     );
   }
@@ -176,6 +215,9 @@ class _$ControlModelImpl extends _ControlModel {
     this.fan = false,
     this.light = false,
     this.resetWater = false,
+    this.soilThreshold = 60,
+    this.tempThreshold = 40,
+    this.humidityThreshold = 30,
   }) : super._();
 
   factory _$ControlModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -196,10 +238,19 @@ class _$ControlModelImpl extends _ControlModel {
   @override
   @JsonKey()
   final bool resetWater;
+  @override
+  @JsonKey()
+  final int soilThreshold;
+  @override
+  @JsonKey()
+  final int tempThreshold;
+  @override
+  @JsonKey()
+  final int humidityThreshold;
 
   @override
   String toString() {
-    return 'ControlModel(manualMode: $manualMode, pump: $pump, fan: $fan, light: $light, resetWater: $resetWater)';
+    return 'ControlModel(manualMode: $manualMode, pump: $pump, fan: $fan, light: $light, resetWater: $resetWater, soilThreshold: $soilThreshold, tempThreshold: $tempThreshold, humidityThreshold: $humidityThreshold)';
   }
 
   @override
@@ -213,13 +264,28 @@ class _$ControlModelImpl extends _ControlModel {
             (identical(other.fan, fan) || other.fan == fan) &&
             (identical(other.light, light) || other.light == light) &&
             (identical(other.resetWater, resetWater) ||
-                other.resetWater == resetWater));
+                other.resetWater == resetWater) &&
+            (identical(other.soilThreshold, soilThreshold) ||
+                other.soilThreshold == soilThreshold) &&
+            (identical(other.tempThreshold, tempThreshold) ||
+                other.tempThreshold == tempThreshold) &&
+            (identical(other.humidityThreshold, humidityThreshold) ||
+                other.humidityThreshold == humidityThreshold));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, manualMode, pump, fan, light, resetWater);
+  int get hashCode => Object.hash(
+    runtimeType,
+    manualMode,
+    pump,
+    fan,
+    light,
+    resetWater,
+    soilThreshold,
+    tempThreshold,
+    humidityThreshold,
+  );
 
   /// Create a copy of ControlModel
   /// with the given fields replaced by the non-null parameter values.
@@ -242,6 +308,9 @@ abstract class _ControlModel extends ControlModel {
     final bool fan,
     final bool light,
     final bool resetWater,
+    final int soilThreshold,
+    final int tempThreshold,
+    final int humidityThreshold,
   }) = _$ControlModelImpl;
   const _ControlModel._() : super._();
 
@@ -258,6 +327,12 @@ abstract class _ControlModel extends ControlModel {
   bool get light;
   @override
   bool get resetWater;
+  @override
+  int get soilThreshold;
+  @override
+  int get tempThreshold;
+  @override
+  int get humidityThreshold;
 
   /// Create a copy of ControlModel
   /// with the given fields replaced by the non-null parameter values.

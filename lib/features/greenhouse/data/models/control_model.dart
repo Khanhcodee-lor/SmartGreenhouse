@@ -14,16 +14,22 @@ class ControlModel with _$ControlModel {
     @Default(false) bool fan,
     @Default(false) bool light,
     @Default(false) bool resetWater,
+    @Default(60) int soilThreshold,
+    @Default(40) int tempThreshold,
+    @Default(30) int humidityThreshold,
   }) = _ControlModel;
 
   factory ControlModel.fromJson(Map<String, dynamic> json) =>
       _$ControlModelFromJson(json);
 
   ControlEntity toEntity() => ControlEntity(
-        manualMode: manualMode,
-        pump: pump,
-        fan: fan,
-        light: light,
-        resetWater: resetWater,
-      );
+    manualMode: manualMode,
+    pump: pump,
+    fan: fan,
+    light: light,
+    resetWater: resetWater,
+    soilThreshold: soilThreshold,
+    tempThreshold: tempThreshold,
+    humidityThreshold: humidityThreshold,
+  );
 }

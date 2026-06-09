@@ -13,6 +13,9 @@ _$ControlModelImpl _$$ControlModelImplFromJson(Map<String, dynamic> json) =>
       fan: json['fan'] as bool? ?? false,
       light: json['light'] as bool? ?? false,
       resetWater: json['resetWater'] as bool? ?? false,
+      soilThreshold: (json['soilThreshold'] as num?)?.toInt() ?? 60,
+      tempThreshold: (json['tempThreshold'] as num?)?.toInt() ?? 40,
+      humidityThreshold: (json['humidityThreshold'] as num?)?.toInt() ?? 30,
     );
 
 Map<String, dynamic> _$$ControlModelImplToJson(_$ControlModelImpl instance) =>
@@ -22,4 +25,7 @@ Map<String, dynamic> _$$ControlModelImplToJson(_$ControlModelImpl instance) =>
       'fan': instance.fan,
       'light': instance.light,
       'resetWater': instance.resetWater,
+      'soilThreshold': instance.soilThreshold,
+      'tempThreshold': instance.tempThreshold,
+      'humidityThreshold': instance.humidityThreshold,
     };
